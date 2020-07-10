@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 fn main() {
+  // hash map 是一种集合，它通过一个哈希函数来实现映射，决定如何将键和值放入内存中
   let mut scores = HashMap::new();
 
   scores.insert(String::from("Blue"), 10);

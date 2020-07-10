@@ -56,6 +56,7 @@ fn main() {
   let float = Option_f64::Some(5.0);
 }
 
+// 待修复，查看 trait.rs 修复后的代码
 // fn largest<T>(list: &[T]) -> T {
 //   let mut largest = list[0];
 

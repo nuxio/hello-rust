@@ -6,11 +6,15 @@ enum SpreadsheetCell {
 }
 
 fn main() {
+  // vector 是一种集合
   // Vector 只能存储相同类型的值
+  // 长度可以变化，更类似于JS的数组
+  // 一个 vector 内的元素在内存中是排列在一起的
   let v: Vec<i32> = Vec::new();
   let mut v = vec![1, 2, 3];
 
   v.push(5);
+  // vector 还有 pop sort reverse 等常用方法
 
   let third: &i32 = &v[2];
 

@@ -1,4 +1,8 @@
 fn main() {
+  // 字符串是一种集合
+  // rust 核心语言中只有一种字符串类型 str，常常以被借用的形式出现 &str
+  // String 类型是由标准库提供的，没有写进核心语言部分
+  // String 是可变的、有所有权的、UTF-8编码的字符串类型
   let mut s = String::new();
 
   let data = "initial contents";
@@ -12,6 +16,7 @@ fn main() {
 
   s1.push_str(s2); // 加入字符串
   s1.push('x'); // 加入单个字符
+  // 很多 Vec 可用的操作在 String 上同样可用，比如 pop reverse 等
   println!("s1 is {}, s2 is {}", s1, s2);
 
   let s1 = String::from("Hello, ");
