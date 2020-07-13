@@ -1,102 +1,30 @@
-#[derive(Debug)]
-struct Rectangle {
-  width: u32,
-  height: u32,
+// rust 中，迭代器是惰性的，在调用方法使用迭代器之前它都不会有效果
+
+// 迭代器都实现了一个叫做 Iterator 的定义于标准库的 trait，看起来像这样：
+pub trait Iterator {
+  type Item; // trait 的关联类型
+
+  fn next(&mut self) -> Option<Self::Item>; // 消费适配器（consuming adaptors）
 }
 
-impl Rectangle {
-  fn can_hold(&self, other: &Rectangle) -> bool {
-    self.width > other.width && self.height > other.height
-  }
+fn main() {
+  let v1 = vec![1, 2, 3];
+
+  // into_iter 返回拥有所有权的迭代器
+  // iter_mut 返回可变引用
+  let v1_iter = v1.iter(); // 返回不可变引用
+
+  let total: i32 = v1_iter.sum(); // sum 会获取迭代器所有权并且反复调用 next 方法，所以也是一个消费适配器
+
+  // Iterator trait 中定义了另一类方法，被称为 迭代器适配器（iterator adaptors），他们允许我们将当前迭代器变为不同类型的迭代器。
+  let v1: Vec<i32> = vec![1, 2, 3];
+
+  // 调用迭代器适配器 map 来创建一个新迭代器，由于迭代器是惰性的
+  // 下面这句代码相当于还停留在声明阶段
+  // v1.iter().map(|x| x + 1);
+
+  // collect 方法消费了迭代器
+  let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+
+  assert_eq!(v2, vec![2, 3, 4]);
 }
-
-pub struct Guess {
-  value: i32,
-}
-
-impl Guess {
-  pub fn new(value: i32) -> Guess {
-    if value < 1 {
-      panic!(
-        "Guess value must be greater than or equal to 1, got {}.",
-        value
-      );
-    } else if value > 100 {
-      panic!(
-        "Guess value must be less than or equal to 100, got {}.",
-        value
-      );
-    }
-
-    Guess { value }
-  }
-}
-
-// 当使用 `cargo test` 命令运行测试时，Rust 会构建一个测试执行程序用来调用标记了 test 属性的函数
-#[cfg(test)]
-mod tests {
-  use super::*; // 在模块 tests 内引入 Rectangle
-
-  #[test] // 这个属性表示这是一个测试函数
-  fn it_works() {
-    // 断言是否相等，底层使用了 ==
-    assert_eq!(2 + 2, 4);
-  }
-
-  #[test]
-  fn another_works() {
-    // 断言是否不等，底层使用了 !=
-    assert_ne!(2 + 2, 5);
-  }
-
-  #[test]
-  fn custom_fail_message() {
-    assert!(false, "This is the custom fail message, {}", "Yeah");
-  }
-
-  #[test]
-  #[ignore] // 忽略此测试
-  fn another() {
-    panic!("Make mistake!");
-  }
-
-  #[test]
-  fn lager_can_hold_smaller() {
-    let larger = Rectangle {
-      width: 8,
-      height: 7,
-    };
-    let smaller = Rectangle {
-      width: 5,
-      height: 1,
-    };
-
-    // 断言，只判断 true 和 false
-    assert!(larger.can_hold(&smaller));
-  }
-
-  #[test]
-  #[should_panic(expected = "Guess value must be less than or equal to 100")]
-  fn greater_than_100() {
-    Guess::new(200); // 捕获 panic!
-  }
-
-  #[test]
-  fn another_it_works() -> Result<(), String> {
-    if 2 + 2 == 4 {
-      Ok(())
-    } else {
-      Err(String::from("two plus two does not equal four"))
-    }
-  }
-}
-
-pub fn add_two(a: i32) -> i32 {
-  internal_adder(a, 2)
-}
-
-fn internal_adder(a: i32, b: i32) -> i32 {
-  a + b
-}
-
-fn main() {}
