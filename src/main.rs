@@ -1,40 +1,102 @@
-// Rust 中每一个引用都有其 生命周期 lifetime ，也就是引用保持有效的作用域
-
-// 借用检查器 borrow checker
-// 下面演示的隐含的生命周期注解
-// 变量 r 的生命周期 'a 比变量 x 的生命周期 'b 长很多
-// rust 在编译时会比较变量的生命周期大小
-// r 引用了一个生命周期比它自身小的对象，编译就会报错
-// fn example() {
-//   let r;                // ---------+-- 'a
-//                         //          |
-//   {                     //          |
-//       let x = 5;        // -+-- 'b  |
-//       r = &x;           //  |       |
-//   }                     // -+       |
-//                         //          |
-//   println!("r: {}", r); //          |
-// }                       // ---------+
-
-fn main() {
-  let s1 = String::from("abcd");
-  let result;
-  {
-    let s2 = "xyz";
-
-    result = longest(s1.as_str(), s2);
-  }
-  println!("The longest string is {}", result);
+#[derive(Debug)]
+struct Rectangle {
+  width: u32,
+  height: u32,
 }
 
-// 生命周期注解不会改变任何引用的生命周期长短
-// 生命周期注解的意义在于告诉Rust多个引用的泛型生命周期参数是如何相互联系的
-// 类似于泛型类型参数，泛型生命周期参数需要声明在函数名和参数列表之间的尖括号中
-// 当具体的参数被传入时，'a 代表的是 x y 的生命中期中较小的哪一个
-fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-  if x.len() > y.len() {
-    x
-  } else {
-    y
+impl Rectangle {
+  fn can_hold(&self, other: &Rectangle) -> bool {
+    self.width > other.width && self.height > other.height
   }
 }
+
+pub struct Guess {
+  value: i32,
+}
+
+impl Guess {
+  pub fn new(value: i32) -> Guess {
+    if value < 1 {
+      panic!(
+        "Guess value must be greater than or equal to 1, got {}.",
+        value
+      );
+    } else if value > 100 {
+      panic!(
+        "Guess value must be less than or equal to 100, got {}.",
+        value
+      );
+    }
+
+    Guess { value }
+  }
+}
+
+// 当使用 `cargo test` 命令运行测试时，Rust 会构建一个测试执行程序用来调用标记了 test 属性的函数
+#[cfg(test)]
+mod tests {
+  use super::*; // 在模块 tests 内引入 Rectangle
+
+  #[test] // 这个属性表示这是一个测试函数
+  fn it_works() {
+    // 断言是否相等，底层使用了 ==
+    assert_eq!(2 + 2, 4);
+  }
+
+  #[test]
+  fn another_works() {
+    // 断言是否不等，底层使用了 !=
+    assert_ne!(2 + 2, 5);
+  }
+
+  #[test]
+  fn custom_fail_message() {
+    assert!(false, "This is the custom fail message, {}", "Yeah");
+  }
+
+  #[test]
+  #[ignore] // 忽略此测试
+  fn another() {
+    panic!("Make mistake!");
+  }
+
+  #[test]
+  fn lager_can_hold_smaller() {
+    let larger = Rectangle {
+      width: 8,
+      height: 7,
+    };
+    let smaller = Rectangle {
+      width: 5,
+      height: 1,
+    };
+
+    // 断言，只判断 true 和 false
+    assert!(larger.can_hold(&smaller));
+  }
+
+  #[test]
+  #[should_panic(expected = "Guess value must be less than or equal to 100")]
+  fn greater_than_100() {
+    Guess::new(200); // 捕获 panic!
+  }
+
+  #[test]
+  fn another_it_works() -> Result<(), String> {
+    if 2 + 2 == 4 {
+      Ok(())
+    } else {
+      Err(String::from("two plus two does not equal four"))
+    }
+  }
+}
+
+pub fn add_two(a: i32) -> i32 {
+  internal_adder(a, 2)
+}
+
+fn internal_adder(a: i32, b: i32) -> i32 {
+  a + b
+}
+
+fn main() {}
